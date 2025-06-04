@@ -1,7 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Time, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,Mapped
 from sqlalchemy.types import JSON
-from app.db.database import Base
+from db.database import Base
+from typing import List
+from datetime import time
+
 
 
 
@@ -20,10 +23,9 @@ class Schedule(Base):
     building = Column(String, nullable=False)
     time_zone = Column(String, nullable=False)
 
-    # List<string> in .NET → JSON column in PostgreSQL/MySQL
     days = Column(JSON, nullable=False, default=[])
 
-    device_settings = relationship("DeviceSetting", back_populates="schedule", cascade="all, delete-orphan")
+    device_settings:Mapped[List["DeviceSetting"]] = relationship("DeviceSetting", back_populates="schedule", cascade="all, delete-orphan")
 
 #======================================================================Schedule entity==========================================================================
 
@@ -49,7 +51,7 @@ class DeviceSetting(Base):
     schedule_id = Column(Integer, ForeignKey("schedules.id", ondelete="CASCADE"), nullable=False)
     schedule = relationship("Schedule", back_populates="device_settings")
 
-    attributes = relationship("DeviceAttribute", back_populates="device_setting", cascade="all, delete-orphan")
+    attributes: Mapped[List["DeviceAttribute"]]  = relationship("DeviceAttribute", back_populates="device_setting", cascade="all, delete-orphan")
 
 #======================================================================DeviceSetting entity==========================================================================
 
@@ -70,7 +72,7 @@ class DeviceAttribute(Base):
     value = Column(String, nullable=False)
 
     device_setting_id = Column(Integer, ForeignKey("device_settings.id", ondelete="CASCADE"), nullable=False)
-    device_setting = relationship("DeviceSetting", back_populates="attributes")
+    device_setting: Mapped["DeviceSetting"] = relationship("DeviceSetting", back_populates="attributes")
 
 
 #======================================================================DeviceAttributes entity==========================================================================

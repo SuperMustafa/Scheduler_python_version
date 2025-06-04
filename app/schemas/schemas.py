@@ -9,11 +9,6 @@ class DeviceAttributeDto(BaseModel):
     key: str
     value: str
 
-# class DeviceAttributeCreate(DeviceAttributeBase): # pydantic will create here id by it self
-#     pass
-
-# class DeviceAttributeRead(DeviceAttributeBase):   # return all column info 
-    # id: int
     pass
     class Config:
         orm_mode = True
@@ -35,12 +30,6 @@ class DeviceSettingDto(BaseModel):
     device_id: str
     attributes: List[DeviceAttributeDto]
 
-# class DeviceSettingCreate(DeviceSettingBase):
-#     attributes: List[DeviceAttributeCreate]
-
-# class DeviceSettingRead(DeviceSettingBase):
-#     id: int
-#     attributes: List[DeviceAttributeRead]
 
     class Config:
         orm_mode = True
@@ -79,11 +68,6 @@ class CreateScheduleDto(BaseModel):
     days: List[str]
     device_settings: List[DeviceSettingDto]
 
-# class ScheduleCreate(ScheduleBase):
-#     device_settings: List[DeviceSettingCreate]
-
-# class ScheduleRead(ScheduleBase):
-#     device_settings: List[DeviceSettingRead]
 
     class Config:
         orm_mode = True
