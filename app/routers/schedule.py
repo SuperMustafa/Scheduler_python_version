@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,Path
 from sqlalchemy.orm import Session
 from typing import List
-
-from db.database import get_db
-from models import models
-from schemas import schemas
+from app.db.database import get_db
+from app.models import models
+from app.schemas import schemas
 
 router = APIRouter(prefix="/schedules", tags=["Schedules"])
 
@@ -37,6 +36,53 @@ def create_schedule(schedule: schemas.CreateScheduleDto, db: Session = Depends(g
     db.commit()
     db.refresh(db_schedule)
     return db_schedule ## here FastAPI will convert it into JSON using the ScheduleDto response model you defined.
+
+
+
+
+
+
+@router.put("/{schedule_id}", response_model=schemas.ScheduleDto)
+def update_schedule(schedule_id: int,updated_schedule: schemas.CreateScheduleDto,db: Session = Depends(get_db)):
+    db_schedule = db.query(models.Schedule).filter(models.Schedule.id == schedule_id).first()
+
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    # Update main schedule fields
+    db_schedule.name = updated_schedule.name
+    db_schedule.description = updated_schedule.description
+    db_schedule.active = updated_schedule.active
+    db_schedule.time = updated_schedule.time
+    db_schedule.building = updated_schedule.building
+    db_schedule.time_zone = updated_schedule.time_zone
+    db_schedule.days = updated_schedule.days
+    db_schedule.tenant_id = updated_schedule.tenant_id
+    db_schedule.customer_id = updated_schedule.customer_id
+    
+
+    # Clear existing device settings & attributes
+    db_schedule.device_settings.clear()
+
+    # Add new device settings and attributes
+    for ds in updated_schedule.device_settings:
+        device_setting = models.DeviceSetting(
+            name=ds.name,
+            device_id=ds.device_id,
+            schedule_id=schedule_id
+        )
+        for attr in ds.attributes:
+            device_setting.attributes.append(models.DeviceAttribute(key=attr.key, value=attr.value))
+        db_schedule.device_settings.append(device_setting)
+
+    db.commit()
+    db.refresh(db_schedule)
+    return db_schedule
+
+
+
+
+
 
 
 
@@ -83,3 +129,7 @@ def get_schedules_by_customer(customer_id: str, db: Session = Depends(get_db)):
     if not schedules:
         raise HTTPException(status_code=404, detail="No schedules found for this customer")
     return schedules
+
+
+
+

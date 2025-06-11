@@ -2,19 +2,23 @@ import asyncio
 import platform
 import logging
 from datetime import datetime
-from fastapi import FastAPI
-from routers import schedule
-from db.database import engine, Base, SessionLocal
+from fastapi import FastAPI        
+from sqlalchemy.ext.declarative import declarative_base      
+from sqlalchemy.orm import DeclarativeMeta   
+from app.routers import schedule
+from app.db.database import engine, Base, SessionLocal
 from sqlalchemy.orm import Session
-from services.executor_service import ExecutorService
-from models import models
+from app.services.executor_service import ExecutorService
+from app.models import models
 import httpx
 import pytz
 
 app = FastAPI()
+Base: DeclarativeMeta = declarative_base()
 
 
 def get_egypt_now():
+    
     """Return current time in Egypt with OS-compatible timezone handling."""
     if platform.system() == "Windows":
         tz = pytz.timezone("Egypt")  # Make sure this is installed in pytz
@@ -51,7 +55,7 @@ async def background_executor_task():
                     schedule_days = schedule.days or []
                     logger.info(f"Checking schedule: {schedule.name} for day {current_day} at {schedule_time.hour:02}:{schedule_time.minute:02}")
 
-                    if current_day.lower() not in schedule_days:
+                    if current_day.lower() not in [d.lower().strip() for d in schedule_days]:
                         logger.info(f"Schedule '{schedule.name}' not valid for today ({current_day})")
                         continue
 

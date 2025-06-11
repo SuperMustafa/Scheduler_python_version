@@ -1,0 +1,32 @@
+# version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: scheduler-db-1
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: inseejam@2025
+
+      POSTGRES_DB: Scheduler_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: scheduler-web-1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL:postgres://myuser:inseejam%402025@db:5432/Scheduler_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

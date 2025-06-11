@@ -69,6 +69,9 @@ class CreateScheduleDto(BaseModel):
     device_settings: List[DeviceSettingDto]
 
 
+class UpdateScheduleDto(ScheduleDto):
+   
+
     class Config:
         orm_mode = True
 # ==================================================================== Schedule Schemas =====================================================================

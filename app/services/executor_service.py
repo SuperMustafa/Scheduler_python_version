@@ -3,7 +3,7 @@ import logging
 from typing import Optional, Dict, Any
 from pydantic import BaseModel
 
-from models.models import Schedule
+from app.models.models import Schedule
 
 
 class JwtResponse(BaseModel):
@@ -14,9 +14,9 @@ class ExecutorService:
     def __init__(self, http_client: httpx.AsyncClient, logger: logging.Logger):
         self._http_client = http_client
         self._logger = logger
-        self._thingsboard_base_url = "http://100.86.185.63"
-        self._username = "sysadmin@thingsboard.org"
-        self._password = "sysadmin"
+        self._thingsboard_base_url = "http://100.87.187.103"
+        self._username = "tenant@thingsboard.org"
+        self._password = "tenant"
         # self._thingsboard_base_url = "https://demo.thingsboard.io"
         # self._username = "mustafahamad116aa@gmail.com"
         # self._password = "mustafa@1031998"
@@ -24,7 +24,7 @@ class ExecutorService:
 
     async def execute_schedule(self, schedule: Schedule):
         self._logger.info(f"Starting execution for schedule: {schedule.name}")
-        tenant_id = schedule.tenant_id
+        # tenant_id = schedule.tenant_id
         admin_token = await self.get_jwt_token(self._username, self._password)
 
         try:
@@ -32,7 +32,7 @@ class ExecutorService:
                 self._logger.error("Failed to get ThingsBoard token.")
                 return
 
-            tenant_user = await self.get_tenant_user_email(tenant_id, admin_token)
+            tenant_user = await self.get_tenant_user_email(admin_token)
             if not tenant_user:
                 self._logger.error("Failed to get ThingsBoard tenant user.")
                 return
@@ -94,14 +94,17 @@ class ExecutorService:
                 f"Exception occurred while sending attributes to device {device_id}.", exc_info=ex
             )
 
-    async def get_tenant_user_email(self, tenant_id: str, token: str) -> Optional[str]:
-        url = f"{self._thingsboard_base_url}/api/tenant/{tenant_id}/users?pageSize=100&page=0"
+    async def get_tenant_user_email(self, token: str) -> Optional[str]:
         headers = {"Authorization": f"Bearer {token}"}
+        url = f"{self._thingsboard_base_url}/api/users?pageSize=100&page=0"
+
 
         try:
             response = await self._http_client.get(url, headers=headers)
             if response.is_success:
-                users = response.json().get("data", [])
+                data = response.json()
+                users = data.get("data", [])
+                # users = response.json().get("data", [])
                 for user in users:
                     email = user.get("email", "")
                     if email.lower().startswith("tenant"):
