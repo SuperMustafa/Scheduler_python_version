@@ -12,6 +12,9 @@ router = APIRouter(prefix="/schedules", tags=["Schedules"])
 @router.post("/", response_model=schemas.ScheduleDto) # here we control the shape of returnd json of schedule
 def create_schedule(schedule: schemas.CreateScheduleDto, db: Session = Depends(get_db)): # here we control the shape of json we send to database at the request
     db_schedule = models.Schedule(
+        thingsboard_url=schedule.thingsboard_url,
+        username=schedule.username,
+        password=schedule.password,
         tenant_id=schedule.tenant_id,
         customer_id=schedule.customer_id,
         name=schedule.name,

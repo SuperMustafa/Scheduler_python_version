@@ -42,8 +42,29 @@ class DeviceSettingDto(BaseModel):
 
 # ==================================================================== Schedule Schemas =====================================================================
 
+class CreateScheduleDto(BaseModel):
+    thingsboard_url: str
+    username: str
+    password: str
+    tenant_id: str
+    customer_id: str
+    name: Optional[str] = None
+    description: Optional[str] = None
+    active: bool
+    time: time
+    building: str
+    time_zone: str
+    days: List[str]
+    device_settings: List[DeviceSettingDto]
+
+
+
+
 class ScheduleDto(BaseModel):
     id:int
+    thingsboard_url: str
+    username: str
+    password: str
     tenant_id: str
     customer_id: str
     name: Optional[str] = None
@@ -54,24 +75,12 @@ class ScheduleDto(BaseModel):
     time_zone: str
     days: List[str]
     device_settings: List[DeviceSettingDto]
-
-
-class CreateScheduleDto(BaseModel):
-    tenant_id: str
-    customer_id: str
-    name: Optional[str] = None
-    description: Optional[str] = None
-    active: bool
-    time: time
-    building: str
-    time_zone: str
-    days: List[str]
-    device_settings: List[DeviceSettingDto]
+   
 
 
 class UpdateScheduleDto(ScheduleDto):
    
 
     class Config:
-        orm_mode = True
+        orm_mode = True    
 # ==================================================================== Schedule Schemas =====================================================================

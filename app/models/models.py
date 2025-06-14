@@ -14,6 +14,9 @@ class Schedule(Base):
     __tablename__ = "schedules"
 
     id = Column(Integer, primary_key=True, index=True)
+    thingsboard_url = Column(String, nullable=True)
+    username = Column(String, nullable=True)
+    password = Column(String, nullable=True)
     tenant_id = Column(String, nullable=False)
     customer_id = Column(String, nullable=False)
     name = Column(String, nullable=True)
